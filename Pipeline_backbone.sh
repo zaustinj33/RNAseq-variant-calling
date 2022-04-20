@@ -22,7 +22,10 @@ fastqc $2/raw_data/$1/$1_1.fq.gz
 fastqc $2/raw_data/$1/$1_2.fq.gz
 
 #2 trim_galore!
-trim_galore --paired --phred33 --fastqc --illumina --clip_R1 6 --clip_R2 6 --dont_gzip -q 30 --length 30 $2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz --output_dir $2/working_data/$1
+trim_galore --paired --phred33 --fastqc --illumina \
+--clip_R1 6 --clip_R2 6 --dont_gzip -q 30 --length 30 \
+$2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
+--output_dir $2/working_data/$1
 
 #3 STAR - also outputs expression matrix
 STAR --runThreadN 32 --sjdbGTFfile $GTF \

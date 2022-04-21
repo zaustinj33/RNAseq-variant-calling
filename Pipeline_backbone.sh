@@ -5,8 +5,8 @@
 
 # Setup dirs
 cd /projects/epigenomicslab/RNAseq-variant-calling
-mkdir -p $PWD/working_data
-mkdir -p $PWD/result
+mkdir -p working_data
+mkdir -p result
 
 # Required software:
 #SAMTools
@@ -60,7 +60,7 @@ STAR --runThreadN 32 --sjdbGTFfile $GTF \
 --readFilesCommand zcat \
 -c --outSAMstrandField intronMotif \
 --genomeDir $IDX --limitBAMsortRAM=40000000000 \
---readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_1_val_1.fq.gz \
+--readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
 --quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
 
 #4 Mark duplicates

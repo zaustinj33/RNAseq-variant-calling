@@ -17,11 +17,11 @@ mkdir -p $PWD/result
 #GATK
 
 # Pre-requisite files (human GRChv38):
-GTF=$PWD/Annotation/Homo_sapiens.GRCh38.105.gtf
-IDX=$PWD/Annotation/STAR_hg38_humanIndex
-FA=$PWD/Annotation/Homo_sapiens.GRCh38.dna.primary_assembly.fa
-SNPS=$PWD/Annotation/human_variants/Homo_sapiens_assembly38.dbsnp138.vcf
-ANNO=$PWD/Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.gz
+GTF=$PWD/../Annotation/Homo_sapiens.GRCh38.105.gtf
+IDX=$PWD/../Annotation/STAR_hg38_humanIndex
+FA=$PWD/../Annotation/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+SNPS=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.dbsnp138.vcf
+ANNO=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.gz
 
 ## Steps:
 #1 FastQC

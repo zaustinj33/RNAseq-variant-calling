@@ -67,7 +67,7 @@ STAR --runThreadN 32 --sjdbGTFfile $GTF \
 module reset
 module load picard
 java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
-INPUT=$2/result/$1/$1_STARout OUTPUT=$1_markDups.bam \
+INPUT=$2/result/$1/$1_STARout OUTPUT=$2/result/$1/$1_markDups.bam \
 METRICS_FILE=$1_markDups_metrics.txt \
 REMOVE_DUPLICATES=false ASSUME_SORTED=true PROGRAM_RECORD_ID='null' \
 VALIDATION_STRINGENCY=LENIENT \
@@ -75,7 +75,7 @@ CREATE_INDEX=TRUE
 
 #5 Add read-groups
 java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-INPUT=$1_markDups.bam OUTPUT=$1_markDups_groups.bam \
+INPUT=$2/result/$1/$1_markDups.bam OUTPUT=$2/result/$1/$1_markDups_groups.bam \
 RGLB=LB RGPL=ILLUMINA RGPU=PU RGSM=$1 \
 CREATE_INDEX=TRUE
 
@@ -83,30 +83,30 @@ CREATE_INDEX=TRUE
 module reset
 module load GATK
 gatk SplitNCigarReads \
--I $1_markDups.bam \
+-I $2/result/$1/$1_markDups.bam \
 -R $FA \
--O $1_split.bam -OBI
+-O $2/result/$1/$1_split.bam -OBI
 
 #7 Recalibrate Reads
 gatk BaseRecalibrator \
--I $1_split.bam \
+-I $2/result/$1/$1_split.bam \
 -R $FA \
--O $1_table.recal \
+-O $2/result/$1/$1_table.recal \
 --known-sites $SNPS \
 --verbosity INFO \
 --java-options -Xmx 50g
 
 gatk ApplyBQSR \
 -R $FA \
--I $1_split.bam \
---bqsr-recal-file $1_table.recal \
--O $1_recal.bam \
+-I $2/result/$1/$1_split.bam \
+--bqsr-recal-file $2/result/$1/$1_table.recal \
+-O $2/result/$1/$1_recal.bam \
 --create-output-bam-index true \
 --java-options -Xmx 50g
 
 #8 Call Variants
 gatk HaplotypeCaller \
--I $1_recal_bam \
+-I $2/result/$1/$1_recal.bam \
 -R $FA \
 -O $1_raw_variants.vcf \
 --dont-use-soft-clipped-bases \

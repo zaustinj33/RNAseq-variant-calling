@@ -3,19 +3,36 @@
 ## Backbone of RNAseq variant calling pipeline based on GATK best practices: 
 #https://gatk.broadinstitute.org/hc/en-us/articles/360035531192-RNAseq-short-variant-discovery-SNPs-Indels-
 
-# Pre-requisite files
-GTF=
-GNM=
-IDX=
-FA=
-SNPS=
-ANNO=
+# Required software:
+#SAMTools
+#FastQC
+#trim_galore!
+#STAR
+#Picard
+#GATK
+
+# Pre-requisite files (human GRChv38):
+GTF=$PWD/Annotation/Homo_sapiens.GRCh38.105.gtf
+IDX=$PWD/Annotation/STAR_hg38_humanIndex
+FA=$PWD/Annotation/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+SNPS=$PWD/Annotation/human_variants/Homo_sapiens_assembly38.dbsnp138.vcf
+ANNO=$PWD/Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.gz
 
 ## Steps:
 #1 FastQC
 #2 trim_galore!
 #3 STAR
 #4 Mark Duplicates (Picard)
+#5 Add read-groups
+#6 Split Reads (GATK)
+#7 Recalibrate Reads
+#8 Call Variants
+#9 Generate GVCF file
+#10 Filter variants
+#11 Annotate Variants
+#12 MultiQC check
+
+
 
 #1 FastQC
 fastqc $2/raw_data/$1/$1_1.fq.gz
@@ -111,7 +128,7 @@ gatk VariantFiltration \
 #11 Annotate Variants
 table_annovar.pl $1_filtered.vcf $ANNO \
 --outfile $1 \
---buildver $GNM \
+--buildver $FA \
 --protocol refGene,cosmic87_coding,cosmic87_noncoding,clinvar_20180603,avsnp150,1000g2015aug_all,gnomad_genome,dbnsfp35a,dbscsnv11 \
 --operation g,f,f,f,f,f,f,f,f \
 --vcfinput \

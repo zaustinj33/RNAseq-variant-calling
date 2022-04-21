@@ -3,6 +3,10 @@
 ## Backbone of RNAseq variant calling pipeline based on GATK best practices: 
 #https://gatk.broadinstitute.org/hc/en-us/articles/360035531192-RNAseq-short-variant-discovery-SNPs-Indels-
 
+# Setup dirs
+mkdir -p working_data
+mkdir -p result
+
 # Required software:
 #SAMTools
 #FastQC
@@ -68,7 +72,6 @@ CREATE_INDEX=TRUE
 
 #6 Split Reads
 gatk SplitNCigarReads \
---TMP_DIR $TMP_DIR \
 -I $1_markDups.bam \
 -R $FA \
 -O $1_split.bam -OBI
@@ -91,7 +94,7 @@ gatk ApplyBQSR \
 --java-options -Xmx 50g
 
 #8 Call Variants
-gatk HaplotypeCaller \\
+gatk HaplotypeCaller \
 -I $1_recal_bam \
 -R $FA \
 -O $1_raw_variants.vcf \

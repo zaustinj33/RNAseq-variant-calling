@@ -38,17 +38,23 @@ ANNO=$PWD/Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.gz
 
 
 
-#1 FastQC
-fastqc $2/raw_data/$1/$1_1.fq.gz
-fastqc $2/raw_data/$1/$1_2.fq.gz
+#1 FastQC - pass
+#module reset
+#module load FastQC
+#fastqc $2/raw_data/$1/$1_1.fq.gz
+#fastqc $2/raw_data/$1/$1_2.fq.gz
 
-#2 trim_galore!
+#2 trim_galore! - pass
+module reset
+module load Trim_Galore
 trim_galore --paired --phred33 --fastqc --illumina \
 --clip_R1 6 --clip_R2 6 --dont_gzip -q 30 --length 30 \
 $2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
 --output_dir $2/working_data/$1
 
 #3 STAR - also outputs expression matrix
+module reset
+module load STAR/2.7.9a-GCC-10.3.0
 STAR --runThreadN 32 --sjdbGTFfile $GTF \
 --readFilesCommand gunzip \
 -c --outSAMstrandField intronMotif \
@@ -57,7 +63,9 @@ STAR --runThreadN 32 --sjdbGTFfile $GTF \
 --quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
 
 #4 Mark duplicates
-picard MarkDuplicates \
+module reset
+module load picard
+java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
 INPUT=$2/result/$1/$1_STARout OUTPUT=$1_markDups.bam \
 METRICS_FILE=$1_markDups_metrics.txt \
 REMOVE_DUPLICATES=false ASSUME_SORTED=true PROGRAM_RECORD_ID='null' \
@@ -65,12 +73,14 @@ VALIDATION_STRINGENCY=LENIENT \
 CREATE_INDEX=TRUE
 
 #5 Add read-groups
-picard AddOrReplaceReadGroups \
+java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
 INPUT=$1_markDups.bam OUTPUT=$1_markDups_groups.bam \
 RGLB=LB RGPL=ILLUMINA RGPU=PU RGSM=$1 \
 CREATE_INDEX=TRUE
 
 #6 Split Reads
+module reset
+module load GATK
 gatk SplitNCigarReads \
 -I $1_markDups.bam \
 -R $FA \
@@ -129,7 +139,7 @@ gatk VariantFiltration \
 --filter-expression "QD < 2.0"
 
 #11 Annotate Variants
-table_annovar.pl $1_filtered.vcf $ANNO \
+gatk VariantAnnotator $1_filtered.vcf $ANNO \
 --outfile $1 \
 --buildver $FA \
 --protocol refGene,cosmic87_coding,cosmic87_noncoding,clinvar_20180603,avsnp150,1000g2015aug_all,gnomad_genome,dbnsfp35a,dbscsnv11 \
@@ -139,6 +149,8 @@ table_annovar.pl $1_filtered.vcf $ANNO \
 --remove
 
 # MultiQC check
+module reset
+module load MultiQC
 multiqc .
 
 echo 'DONE'

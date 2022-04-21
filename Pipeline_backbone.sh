@@ -4,8 +4,9 @@
 #https://gatk.broadinstitute.org/hc/en-us/articles/360035531192-RNAseq-short-variant-discovery-SNPs-Indels-
 
 # Setup dirs
-mkdir -p working_data
-mkdir -p result
+cd /projects/epigenomicslab/RNAseq-variant-calling
+mkdir -p $PWD/working_data
+mkdir -p $PWD/result
 
 # Required software:
 #SAMTools

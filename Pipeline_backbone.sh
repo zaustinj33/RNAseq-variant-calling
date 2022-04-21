@@ -53,21 +53,26 @@ ANNO=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.
 #$2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
 #--output_dir $2/working_data/$1
 
-#3 STAR - also outputs expression matrix
+#3a STAR - also outputs expression matrix
+#module reset
+#module load STAR/2.7.9a-GCC-10.3.0
+#STAR --runThreadN 32 --sjdbGTFfile $GTF \
+#--readFilesCommand zcat -c intronMotif \
+#--genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
+#--limitBAMsortRAM=40000000000 \
+#--readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
+#--quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
+#3b Index
 module reset
-module load STAR/2.7.9a-GCC-10.3.0
-STAR --runThreadN 32 --sjdbGTFfile $GTF \
---readFilesCommand zcat -c intronMotif \
---genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
---limitBAMsortRAM=40000000000 \
---readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
---quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
+module load SAMtools
+samtools index $1_STARoutAligned.sortedByCoord.out.bam
+
 
 #4 Mark duplicates
 module reset
 module load picard
 java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
-INPUT=$2/result/$1/$1_STARout.bam OUTPUT=$2/result/$1/$1_markDups.bam \
+INPUT=$2/result/$1/$1_STARoutAligned.sortedByCoord.out.bam OUTPUT=$2/result/$1/$1_markDups.bam \
 METRICS_FILE=$1_markDups_metrics.txt \
 REMOVE_DUPLICATES=false ASSUME_SORTED=true PROGRAM_RECORD_ID='null' \
 VALIDATION_STRINGENCY=LENIENT \

@@ -57,9 +57,9 @@ ANNO=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.
 module reset
 module load STAR/2.7.9a-GCC-10.3.0
 STAR --runThreadN 32 --sjdbGTFfile $GTF \
---readFilesCommand zcat \
--c --outSAMstrandField intronMotif \
---genomeDir $IDX --limitBAMsortRAM=40000000000 \
+--readFilesCommand zcat -c intronMotif \
+--genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
+--limitBAMsortRAM=40000000000 \
 --readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
 --quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
 
@@ -67,7 +67,7 @@ STAR --runThreadN 32 --sjdbGTFfile $GTF \
 module reset
 module load picard
 java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
-INPUT=$2/result/$1/$1_STARout OUTPUT=$2/result/$1/$1_markDups.bam \
+INPUT=$2/result/$1/$1_STARout.bam OUTPUT=$2/result/$1/$1_markDups.bam \
 METRICS_FILE=$1_markDups_metrics.txt \
 REMOVE_DUPLICATES=false ASSUME_SORTED=true PROGRAM_RECORD_ID='null' \
 VALIDATION_STRINGENCY=LENIENT \

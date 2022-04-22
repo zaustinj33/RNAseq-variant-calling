@@ -7,6 +7,7 @@
 cd /projects/epigenomicslab/RNAseq-variant-calling
 mkdir -p working_data
 mkdir -p result
+mkdir -p variant_calling
 
 # Required software:
 #SAMTools
@@ -40,32 +41,32 @@ ANNO=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.
 
 
 #1 FastQC - pass
-#module reset
-#module load FastQC
-#fastqc $2/raw_data/$1/$1_1.fq.gz
-#fastqc $2/raw_data/$1/$1_2.fq.gz
+module reset
+module load FastQC
+fastqc $2/raw_data/$1/$1_1.fq.gz
+fastqc $2/raw_data/$1/$1_2.fq.gz
 
 #2 trim_galore! - pass
-#module reset
-#module load Trim_Galore
-#trim_galore --paired --phred33 --fastqc --illumina \
-#--clip_R1 6 --clip_R2 6 -q 30 --length 30 \
-#$2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
-#--output_dir $2/working_data/$1
+module reset
+module load Trim_Galore
+trim_galore --paired --phred33 --fastqc --illumina \
+--clip_R1 6 --clip_R2 6 -q 30 --length 30 \
+$2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
+--output_dir $2/working_data/$1
 
 #3a STAR - also outputs expression matrix
-#module reset
-#module load STAR/2.7.9a-GCC-10.3.0
-#STAR --runThreadN 32 --sjdbGTFfile $GTF \
-#--readFilesCommand zcat -c intronMotif \
-#--genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
-#--limitBAMsortRAM=40000000000 \
-#--readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
-#--quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
+module reset
+module load STAR/2.7.9a-GCC-10.3.0
+STAR --runThreadN 32 --sjdbGTFfile $GTF \
+--readFilesCommand zcat -c intronMotif \
+--genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
+--limitBAMsortRAM=40000000000 \
+--readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
+--quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
 #3b Index
 module reset
 module load SAMtools
-samtools index $1_STARoutAligned.sortedByCoord.out.bam
+samtools index $2/result/$1/$1_STARoutAligned.sortedByCoord.out.bam
 
 
 #4 Mark duplicates
@@ -155,9 +156,9 @@ gatk VariantAnnotator $1_filtered.vcf $ANNO \
 --remove
 
 # MultiQC check
-module reset
-module load MultiQC
-multiqc .
+#module reset
+#module load MultiQC
+#multiqc .
 
 echo 'DONE'
 

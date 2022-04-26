@@ -41,49 +41,48 @@ ANNO=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.
 
 
 #1 FastQC - pass
-module reset
-module load FastQC
-fastqc $2/raw_data/$1/$1_1.fq.gz
-fastqc $2/raw_data/$1/$1_2.fq.gz
+#module reset
+#module load FastQC
+#fastqc $2/raw_data/$1/$1_1.fq.gz
+#fastqc $2/raw_data/$1/$1_2.fq.gz
 
 #2 trim_galore! - pass
-module reset
-module load Trim_Galore
-trim_galore --paired --phred33 --fastqc --illumina \
---clip_R1 6 --clip_R2 6 -q 30 --length 30 \
-$2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
---output_dir $2/working_data/$1
+#module reset
+#module load Trim_Galore
+#trim_galore --paired --phred33 --fastqc --illumina \
+#--clip_R1 6 --clip_R2 6 -q 30 --length 30 \
+#$2/raw_data/$1/$1_1.fq.gz $2/raw_data/$1/$1_2.fq.gz \
+#--output_dir $2/working_data/$1
 
-#3a STAR - also outputs expression matrix
-module reset
-module load STAR/2.7.9a-GCC-10.3.0
-STAR --runThreadN 32 --sjdbGTFfile $GTF \
---readFilesCommand zcat -c intronMotif \
---genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
---limitBAMsortRAM=40000000000 \
---readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
---quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
+#3a STAR - pass
+#module reset
+#module load STAR/2.7.9a-GCC-10.3.0
+#STAR --runThreadN 32 --sjdbGTFfile $GTF \
+#--readFilesCommand zcat -c intronMotif \
+#--genomeDir $IDX --outSAMtype BAM SortedByCoordinate \
+#--limitBAMsortRAM=40000000000 \
+#--readFilesIn $2/working_data/$1/$1_1_val_1.fq.gz $2/working_data/$1/$1_2_val_2.fq.gz \
+#--quantMode GeneCounts --outFileNamePrefix  $2/result/$1/$1_STARout
 #3b Index
-module reset
-module load SAMtools
-samtools index $2/result/$1/$1_STARoutAligned.sortedByCoord.out.bam
+#module reset
+#module load SAMtools
+#samtools index $2/result/$1/$1_STARoutAligned.sortedByCoord.out.bam
 
+#4 Mark duplicates - pass
+#module reset
+#module load picard
+#java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
+#INPUT=$2/result/$1/$1_STARoutAligned.sortedByCoord.out.bam OUTPUT=$2/result/$1/$1_markDups.bam \
+#METRICS_FILE=$1_markDups_metrics.txt \
+#REMOVE_DUPLICATES=false ASSUME_SORTED=true PROGRAM_RECORD_ID='null' \
+#VALIDATION_STRINGENCY=LENIENT \
+#CREATE_INDEX=TRUE
 
-#4 Mark duplicates
-module reset
-module load picard
-java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
-INPUT=$2/result/$1/$1_STARoutAligned.sortedByCoord.out.bam OUTPUT=$2/result/$1/$1_markDups.bam \
-METRICS_FILE=$1_markDups_metrics.txt \
-REMOVE_DUPLICATES=false ASSUME_SORTED=true PROGRAM_RECORD_ID='null' \
-VALIDATION_STRINGENCY=LENIENT \
-CREATE_INDEX=TRUE
-
-#5 Add read-groups
-java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
-INPUT=$2/result/$1/$1_markDups.bam OUTPUT=$2/result/$1/$1_markDups_groups.bam \
-RGLB=LB RGPL=ILLUMINA RGPU=PU RGSM=$1 \
-CREATE_INDEX=TRUE
+#5 Add read-groups - pass
+#java -jar $EBROOTPICARD/picard.jar AddOrReplaceReadGroups \
+#INPUT=$2/result/$1/$1_markDups.bam OUTPUT=$2/result/$1/$1_markDups_groups.bam \
+#RGLB=LB RGPL=ILLUMINA RGPU=PU RGSM=$1 \
+#CREATE_INDEX=TRUE
 
 #6 Split Reads
 module reset

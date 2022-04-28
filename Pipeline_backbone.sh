@@ -84,7 +84,12 @@ ANNO=$PWD/../Annotation/human_variants/Homo_sapiens_assembly38.known_indels.vcf.
 #RGLB=LB RGPL=ILLUMINA RGPU=PU RGSM=$1 \
 #CREATE_INDEX=TRUE
 
-#6 Split Reads
+#6 Split Reads - From GATK documentation:
+# Because RNA aligners have different conventions than DNA aligners, 
+# we need to reformat some of the alignments that span introns for HaplotypeCaller.
+# This step splits reads with N in the cigar into multiple supplementary alignments 
+# and hard clips mismatching overhangs. 
+# By default this step also reassigns mapping qualities for good alignments to match DNA conventions.
 module reset
 module load GATK
 gatk SplitNCigarReads \
@@ -92,6 +97,8 @@ gatk SplitNCigarReads \
 -R $FA \
 -O $2/result/$1/$1_split.bam -OBI
 
+# This step is performed per-sample and consists of applying machine learning to detect and correct 
+# for patterns of systematic errors in the base quality scores.
 #7 Recalibrate Reads
 gatk BaseRecalibrator \
 -I $2/result/$1/$1_split.bam \
@@ -109,7 +116,10 @@ gatk ApplyBQSR \
 --create-output-bam-index true \
 --java-options -Xmx 50g
 
+
 #8 Call Variants
+# HaplotypeCaller doesn’t need any specific changes to run with RNA once the bam has been run through SplitNCigarReads. 
+# For germline detection, 
 gatk HaplotypeCaller \
 -I $2/result/$1/$1_recal.bam \
 -R $FA \
@@ -134,6 +144,7 @@ gatk GenotypeGVCFs \
 -O $1_gvcf.vcf
 
 #10 Filter variants
+# VQSR and CNNScoreVariants require truth data for training and are not applicable for RNA data
 gatk VariantFiltration \
 -R $FA \
 -V $1_raw_variants.vcf \

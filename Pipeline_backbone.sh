@@ -116,6 +116,7 @@ gatk ApplyBQSR \
 --create-output-bam-index true \
 --java-options -Xmx 50g
 
+
 #8 Call Variants
 # HaplotypeCaller doesn’t need any specific changes to run with RNA once the bam has been run through SplitNCigarReads. 
 # For germline detection, 
